@@ -1,8 +1,38 @@
-import React from 'react';
-import { ExternalLink, MapPin, Building, Calendar, DollarSign, Trash2, ShieldCheck } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { ExternalLink, MapPin, Building, Calendar, DollarSign, Trash2, Bookmark } from 'lucide-react';
+
+const API_BASE = 'http://localhost:5000/api';
 
 export default function JobCard({ job, onDelete }) {
+  const { isAuthenticated, token } = useAuth();
+  const [isSaved, setIsSaved] = useState(false);
+  const [savedJobId, setSavedJobId] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
+
   const siteClass = (job.site || '').toLowerCase();
+
+  // Check if job is saved when user is authenticated
+  useEffect(() => {
+    if (isAuthenticated && token && job._id) {
+      checkIfSaved();
+    }
+  }, [isAuthenticated, token, job._id]);
+
+  const checkIfSaved = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/saved-jobs/check/${job._id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        setIsSaved(data.isSaved);
+        if (data.savedJob) setSavedJobId(data.savedJob._id);
+      }
+    } catch (err) {
+      // Silently fail — not critical
+    }
+  };
 
   const formatSalary = () => {
     if (job.min_amount || job.max_amount) {
@@ -18,6 +48,57 @@ export default function JobCard({ job, onDelete }) {
 
   const salary = formatSalary();
 
+  const handleToggleSave = async () => {
+    if (!isAuthenticated || isSaving) return;
+    setIsSaving(true);
+
+    try {
+      if (isSaved && savedJobId) {
+        // Unsave
+        const res = await fetch(`${API_BASE}/saved-jobs/${savedJobId}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          setIsSaved(false);
+          setSavedJobId(null);
+        }
+      } else {
+        // Save
+        const salaryStr = salary || '';
+        const res = await fetch(`${API_BASE}/saved-jobs`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            jobId: job._id,
+            title: job.title,
+            company: job.company,
+            location: job.location,
+            job_url: job.job_url,
+            site: job.site,
+            description: job.description,
+            salary: salaryStr,
+            date_posted: job.date_posted,
+            is_remote: job.is_remote
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          setIsSaved(true);
+          setSavedJobId(data.savedJob._id);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to toggle save:', err);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className={`glass-panel job-card ${siteClass}`}>
       <div>
@@ -29,7 +110,19 @@ export default function JobCard({ job, onDelete }) {
               {job.company}
             </div>
           </div>
-          <span className="site-badge">{job.site || 'web'}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            {isAuthenticated && (
+              <button
+                className={`bookmark-btn ${isSaved ? 'bookmarked' : ''}`}
+                onClick={handleToggleSave}
+                disabled={isSaving}
+                title={isSaved ? 'Remove from saved' : 'Save this job'}
+              >
+                <Bookmark size={17} fill={isSaved ? 'currentColor' : 'none'} />
+              </button>
+            )}
+            <span className="site-badge">{job.site || 'web'}</span>
+          </div>
         </div>
 
         <div className="job-details">

@@ -1,13 +1,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
 import Header from './components/Header';
 import SearchForm from './components/SearchForm';
 import StatsPanel from './components/StatsPanel';
 import FilterBar from './components/FilterBar';
 import JobList from './components/JobList';
+import AuthPage from './components/AuthPage';
+import SavedJobsPage from './components/SavedJobsPage';
 
 const API_BASE = 'http://localhost:5000/api';
 
-export default function App() {
+function HomePage() {
   const [jobs, setJobs] = useState([]);
   const [stats, setStats] = useState(null);
   const [isMongoConnected, setIsMongoConnected] = useState(true);
@@ -134,7 +138,7 @@ export default function App() {
   };
 
   return (
-    <div className="app-container">
+    <>
       <Header
         isMongoConnected={isMongoConnected}
         onRefresh={() => { fetchJobs(); fetchStats(); }}
@@ -167,6 +171,20 @@ export default function App() {
         onPageChange={(newPage) => setPage(newPage)}
         isLoading={isLoading}
       />
-    </div>
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <div className="app-container">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/auth" element={<AuthPage />} />
+          <Route path="/saved" element={<SavedJobsPage />} />
+        </Routes>
+      </div>
+    </AuthProvider>
   );
 }

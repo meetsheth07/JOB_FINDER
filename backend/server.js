@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const jobsRouter = require('./routes/jobs');
+const authRouter = require('./routes/auth');
+const savedJobsRouter = require('./routes/savedJobs');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -16,6 +18,8 @@ app.use(express.urlencoded({ extended: true }));
 
 // API Routes
 app.use('/api/jobs', jobsRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/saved-jobs', savedJobsRouter);
 
 // Root health check
 app.get('/api/health', (req, res) => {
