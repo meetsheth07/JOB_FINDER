@@ -63,7 +63,7 @@ export default function FilterBar({
         <button
           className="btn-secondary btn-danger"
           onClick={() => {
-            if (window.confirm('Are you sure you want to delete all jobs from MongoDB and jobs.csv?')) {
+            if (window.confirm('Are you sure you want to delete all jobs from the database?')) {
               onClearAll();
             }
           }}

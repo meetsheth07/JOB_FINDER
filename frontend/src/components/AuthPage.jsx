@@ -9,6 +9,7 @@ export default function AuthPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { login, register } = useAuth();
@@ -17,15 +18,22 @@ export default function AuthPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccessMsg('');
     setIsSubmitting(true);
 
     try {
       if (isLogin) {
         await login(email, password);
+        navigate('/');
       } else {
         await register(name, email, password);
+        // Registration successful — redirect to sign-in tab with a banner
+        setName('');
+        setEmail('');
+        setPassword('');
+        setIsLogin(true);
+        setSuccessMsg('Account created! Please sign in to continue.');
       }
-      navigate('/');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -36,6 +44,7 @@ export default function AuthPage() {
   const toggleMode = () => {
     setIsLogin(!isLogin);
     setError('');
+    setSuccessMsg('');
     setName('');
     setEmail('');
     setPassword('');
@@ -81,6 +90,12 @@ export default function AuthPage() {
         {error && (
           <div className="auth-error">
             <span>⚠</span> {error}
+          </div>
+        )}
+
+        {successMsg && (
+          <div className="auth-error" style={{ background: 'rgba(16,185,129,0.12)', color: '#34d399', borderColor: 'rgba(52,211,153,0.3)' }}>
+            <span>✓</span> {successMsg}
           </div>
         )}
 

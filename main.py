@@ -1,4 +1,3 @@
-import csv
 import re
 import threading
 import tkinter as tk
@@ -30,7 +29,7 @@ class JobScraperApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Job Scraper")
-        self.root.geometry("700x620")
+        self.root.geometry("700x580")
         self.root.resizable(False, False)
 
         tk.Label(root, text="Job Scraper", font=("Segoe UI", 16, "bold")).pack(pady=(12, 8))
@@ -46,9 +45,6 @@ class JobScraperApp:
         self._add_field(form, "Google query", "google_query", "software engineer jobs near San Francisco, CA since yesterday")
         self._add_field(form, "Results wanted", "results_wanted", "20")
         self._add_field(form, "Hours old", "hours_old", "72")
-
-        self.only_no_experience_var = tk.BooleanVar(value=False)
-        ttk.Checkbutton(form, text="Only show jobs with no prior experience required", variable=self.only_no_experience_var).grid(row=3, column=0, columnspan=2, sticky="w", pady=(6, 0))
 
         sites_frame = ttk.LabelFrame(form, text="Sites", padding=8)
         sites_frame.grid(row=6, column=0, columnspan=2, sticky="ew", pady=(8, 0))
@@ -117,7 +113,6 @@ class JobScraperApp:
                         hours_old=hours_old,
                         country_indeed=normalized_country or "USA",
                     )
-                    jobs = self._filter_jobs_by_experience(jobs, self.only_no_experience_var.get())
                     self.root.after(0, lambda jobs=jobs: self._handle_success(jobs))
                     return
                 except Exception as exc:
@@ -144,84 +139,12 @@ class JobScraperApp:
             return [selected_sites, [site for site in selected_sites if site not in PROBLEMATIC_SITES], FALLBACK_SITES]
         return [selected_sites]
 
-    def _filter_jobs_by_experience(self, jobs, only_no_experience):
-        if not only_no_experience:
-            return jobs
-
-        if jobs is None:
-            return jobs
-
-        if hasattr(jobs, "columns"):
-            text_columns = [
-                column for column in ("description", "job_description", "summary", "requirements", "title", "job_title", "role", "position")
-                if column in jobs.columns
-            ]
-            if not text_columns:
-                return jobs
-
-            text_series = jobs[text_columns].fillna("").astype(str).agg(lambda row: " ".join(row), axis=1)
-            mask = text_series.apply(self._job_requires_experience_text)
-            return jobs[~mask]
-
-        if isinstance(jobs, (list, tuple)):
-            return [job for job in jobs if not self._job_requires_experience_text(self._get_job_text(job))]
-
-        return jobs
-
-    def _job_requires_experience_text(self, text):
-        if not text:
-            return False
-
-        text = str(text).lower()
-        no_experience_markers = [
-            "no prior experience required",
-            "no experience required",
-            "no experience needed",
-            "entry level",
-            "entry-level",
-            "fresher",
-            "fresh graduate",
-            "graduate",
-            "junior",
-            "internship",
-            "intern",
-        ]
-        if any(marker in text for marker in no_experience_markers):
-            return False
-
-        if re.search(r"\b(?:\d+|one|two|three|four|five)\s*(?:\+)?\s*(?:years?|yrs?|yr)\b", text):
-            return True
-
-        return "prior experience" in text or "experience" in text and ("requires" in text or "minimum" in text or "at least" in text)
-
-    def _get_job_text(self, job):
-        if isinstance(job, dict):
-            return " ".join(str(value) for value in job.values())
-        return str(job)
-
-    def _extract_job_links(self, jobs):
-        if not hasattr(jobs, "columns"):
-            return []
-
-        for column_name in ("job_url", "url", "link", "job_link", "job_urls", "job_post_url", "job_posting_url"):
-            if column_name in jobs.columns:
-                return [str(link) for link in jobs[column_name].dropna().tolist()]
-
-        return []
-
     def _handle_success(self, jobs):
-        links = self._extract_job_links(jobs)
-
-        with open("jobs.csv", "w", newline="", encoding="utf-8") as csv_file:
-            writer = csv.writer(csv_file)
-           
-            for link in links:
-                writer.writerow([link])
-
-        self._set_output(f"Found {len(jobs)} jobs\nSaved {len(links)} links to jobs.csv\n")
-        self.status_var.set(f"Done — {len(jobs)} jobs found")
+        job_count = len(jobs) if jobs is not None else 0
+        self._set_output(f"Found {job_count} jobs.\n")
+        self.status_var.set(f"Done — {job_count} jobs found")
         self.run_button.config(state="normal")
-        messagebox.showinfo("Success", f"Saved {len(links)} job links to jobs.csv")
+        messagebox.showinfo("Success", f"Found {job_count} jobs.")
 
     def _handle_error(self, error_message):
         self._set_output(f"Error: {error_message}\n")

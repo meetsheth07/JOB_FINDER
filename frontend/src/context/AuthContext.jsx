@@ -73,10 +73,9 @@ export function AuthProvider({ children }) {
       throw new Error(data.error || 'Registration failed.');
     }
 
-    localStorage.setItem('jf_token', data.token);
-    setToken(data.token);
-    setUser(data.user);
-    return data;
+    // Do NOT auto-login after registration.
+    // User must explicitly sign in to start a session.
+    return { ...data, registered: true };
   };
 
   const logout = useCallback(() => {

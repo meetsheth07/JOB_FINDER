@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const { spawn } = require('child_process');
 const path = require('path');
-const fs = require('fs');
 const Job = require('../models/Job');
 
 // GET /api/jobs - List jobs with search, filtering, and pagination
@@ -110,11 +109,9 @@ router.post('/scrape', async (req, res) => {
       results_wanted = 20,
       hours_old = 72,
       sites = ['indeed', 'linkedin'],
-      only_no_experience = false
     } = req.body;
 
     const pythonScript = path.join(__dirname, '../scraper/scraper.py');
-    const rootCsvPath = path.join(__dirname, '../../../jobs.csv');
 
     const siteArg = Array.isArray(sites) ? sites.join(',') : sites;
 
@@ -126,15 +123,10 @@ router.post('/scrape', async (req, res) => {
       '--results_wanted', String(results_wanted),
       '--hours_old', String(hours_old),
       '--sites', siteArg,
-      '--csv_path', rootCsvPath
     ];
 
     if (google_query) {
       args.push('--google_query', google_query);
-    }
-
-    if (only_no_experience) {
-      args.push('--only_no_experience');
     }
 
     console.log('Spawning Python scraper:', 'python', args.join(' '));
@@ -202,18 +194,18 @@ router.post('/scrape', async (req, res) => {
           else if (result.modifiedCount > 0) updatedCount++;
         }
 
-        // Also ensure jobs.csv in root is updated with all links in DB if missing
-        const allJobs = await Job.find({}, 'job_url');
-        const csvContent = allJobs.map(j => j.job_url).join('\n') + '\n';
-        fs.writeFileSync(rootCsvPath, csvContent, 'utf-8');
+        // Sync MongoDB → return fresh jobs to frontend
+        const freshJobs = await Job.find(
+          { scraped_at: { $gte: new Date(Date.now() - 72 * 60 * 60 * 1000) } }
+        ).sort({ scraped_at: -1 }).limit(parseInt(results_wanted));
 
         res.json({
           success: true,
-          message: `Scraped ${scrapedJobs.length} jobs. ${savedCount} new jobs added, ${updatedCount} updated.`,
+          message: `Scraped ${scrapedJobs.length} jobs. ${savedCount} new results added, ${updatedCount} updated.`,
           scrapedCount: scrapedJobs.length,
           savedCount,
           updatedCount,
-          jobs: scrapedJobs
+          jobs: freshJobs
         });
 
       } catch (err) {
@@ -245,10 +237,6 @@ router.post('/scrape', async (req, res) => {
 router.delete('/', async (req, res) => {
   try {
     await Job.deleteMany({});
-    const rootCsvPath = path.join(__dirname, '../../../jobs.csv');
-    if (fs.existsSync(rootCsvPath)) {
-      fs.writeFileSync(rootCsvPath, '', 'utf-8');
-    }
     res.json({ success: true, message: 'All jobs cleared successfully.' });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });

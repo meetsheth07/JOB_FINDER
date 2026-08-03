@@ -1,9 +1,7 @@
 import sys
 import json
-import csv
 import argparse
 import re
-import os
 import pandas as pd
 from jobspy import scrape_jobs
 
@@ -44,52 +42,6 @@ def build_site_candidates(selected_sites, country):
         return [selected_sites, [site for site in selected_sites if site not in PROBLEMATIC_SITES], FALLBACK_SITES]
     return [selected_sites]
 
-def job_requires_experience_text(text):
-    if not text:
-        return False
-    text = str(text).lower()
-    no_experience_markers = [
-        "no prior experience required",
-        "no experience required",
-        "no experience needed",
-        "entry level",
-        "entry-level",
-        "fresher",
-        "fresh graduate",
-        "graduate",
-        "junior",
-        "internship",
-        "intern",
-    ]
-    if any(marker in text for marker in no_experience_markers):
-        return False
-
-    if re.search(r"\b(?:\d+|one|two|three|four|five)\s*(?:\+)?\s*(?:years?|yrs?|yr)\b", text):
-        return True
-
-    return "prior experience" in text or ("experience" in text and ("requires" in text or "minimum" in text or "at least" in text))
-
-def filter_jobs_by_experience(jobs, only_no_experience):
-    if not only_no_experience or jobs is None:
-        return jobs
-
-    if hasattr(jobs, "columns"):
-        text_columns = [
-            col for col in ("description", "job_description", "summary", "requirements", "title", "job_title", "role", "position")
-            if col in jobs.columns
-        ]
-        if not text_columns:
-            return jobs
-
-        text_series = jobs[text_columns].fillna("").astype(str).agg(lambda row: " ".join(row), axis=1)
-        mask = text_series.apply(job_requires_experience_text)
-        return jobs[~mask]
-
-    if isinstance(jobs, (list, tuple)):
-        return [job for job in jobs if not job_requires_experience_text(" ".join(str(v) for v in job.values()))]
-
-    return jobs
-
 def sanitize_for_json(data):
     if isinstance(data, dict):
         return {k: sanitize_for_json(v) for k, v in data.items()}
@@ -100,14 +52,6 @@ def sanitize_for_json(data):
     else:
         return data
 
-def extract_job_links(jobs):
-    if not hasattr(jobs, "columns"):
-        return []
-    for col in ("job_url", "url", "link", "job_link", "job_urls", "job_post_url", "job_posting_url"):
-        if col in jobs.columns:
-            return [str(link) for link in jobs[col].dropna().tolist()]
-    return []
-
 def main():
     parser = argparse.ArgumentParser(description="Headless Job Scraper")
     parser.add_argument("--search_term", type=str, default="software engineer")
@@ -117,8 +61,6 @@ def main():
     parser.add_argument("--results_wanted", type=int, default=20)
     parser.add_argument("--hours_old", type=int, default=72)
     parser.add_argument("--sites", type=str, default="indeed,linkedin")
-    parser.add_argument("--only_no_experience", action="store_true")
-    parser.add_argument("--csv_path", type=str, default="")
 
     args = parser.parse_args()
 
@@ -143,7 +85,6 @@ def main():
                 hours_old=args.hours_old,
                 country_indeed=normalized_country or "USA",
             )
-            jobs = filter_jobs_by_experience(jobs, args.only_no_experience)
             break
         except Exception as exc:
             last_error = str(exc)
@@ -154,18 +95,7 @@ def main():
         print(json.dumps([]))
         return
 
-    # Extract links and save to jobs.csv if requested/default
-    links = extract_job_links(jobs)
-    csv_target = args.csv_path or "jobs.csv"
-    try:
-        with open(csv_target, "w", newline="", encoding="utf-8") as f:
-            writer = csv.writer(f)
-            for link in links:
-                writer.writerow([link])
-    except Exception as e:
-        sys.stderr.write(f"CSV save warning: {str(e)}\n")
-
-    # Format dataframe/dict to JSON
+    # Serialize dataframe to JSON and output via stdout
     if hasattr(jobs, "to_dict"):
         jobs_list = jobs.to_dict(orient="records")
     elif isinstance(jobs, list):

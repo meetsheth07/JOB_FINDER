@@ -1,29 +1,35 @@
 import React, { useState } from 'react';
-import { Search, MapPin, Globe, Filter, Sparkles, Sliders, CheckSquare, Square } from 'lucide-react';
+import { Search, MapPin, Globe, Sparkles, Sliders, CheckSquare, Square, Clock, Zap } from 'lucide-react';
 
 const AVAILABLE_SITES = [
-  { id: 'indeed', label: 'Indeed' },
-  { id: 'linkedin', label: 'LinkedIn' },
-  { id: 'google', label: 'Google Jobs' },
-  { id: 'zip_recruiter', label: 'ZipRecruiter' },
-  { id: 'glassdoor', label: 'Glassdoor' },
-  { id: 'naukri', label: 'Naukri' },
-  { id: 'bayt', label: 'Bayt' },
-  { id: 'bdjobs', label: 'BDJobs' },
+  { id: 'indeed',        label: 'Indeed',       color: '#2557a7' },
+  { id: 'linkedin',      label: 'LinkedIn',     color: '#0a66c2' },
+  { id: 'google',        label: 'Google Jobs',  color: '#ea4335' },
+  { id: 'zip_recruiter', label: 'ZipRecruiter', color: '#e8430a' },
+  { id: 'glassdoor',     label: 'Glassdoor',    color: '#00a264' },
+  { id: 'naukri',        label: 'Naukri',       color: '#f3911e' },
+  { id: 'bayt',          label: 'Bayt',         color: '#c0392b' },
+  { id: 'bdjobs',        label: 'BDJobs',       color: '#16a085' },
 ];
 
 const COUNTRIES = ['USA', 'India', 'UK', 'Canada', 'Australia', 'Germany', 'Singapore', 'UAE', 'Saudi Arabia'];
 
+const HOURS_OPTIONS = [
+  { value: 24,  label: 'Past 24 Hours' },
+  { value: 48,  label: 'Past 48 Hours' },
+  { value: 72,  label: 'Past 72 Hours' },
+  { value: 168, label: 'Past 7 Days' },
+];
+
 export default function SearchForm({ onScrape, isScraping, scrapeStatus }) {
   const [formData, setFormData] = useState({
-    search_term: 'software engineer',
-    location: 'San Francisco, CA',
+    search_term: '',
+    location: '',
     country: 'USA',
     google_query: '',
     results_wanted: 20,
     hours_old: 72,
     sites: ['indeed', 'linkedin'],
-    only_no_experience: false,
   });
 
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -44,66 +50,69 @@ export default function SearchForm({ onScrape, isScraping, scrapeStatus }) {
       alert('Please select at least one job source.');
       return;
     }
+    if (!formData.search_term.trim()) {
+      alert('Please enter a job title or search term.');
+      return;
+    }
     onScrape(formData);
   };
 
   return (
-    <div className="glass-panel" style={{ padding: '24px', marginBottom: '28px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <div>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Sparkles color="#3b82f6" size={20} />
-            Job Search & Scraper Control
-          </h2>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-            Fetch live jobs from Indeed, LinkedIn, Google & more
-          </p>
+    <div className="search-panel glass-panel">
+      {/* Header */}
+      <div className="search-panel-header">
+        <div className="search-panel-title-group">
+          <div className="search-panel-icon">
+            <Sparkles size={18} />
+          </div>
+          <div>
+            <h2 className="search-panel-title">Find Your Next Role</h2>
+            <p className="search-panel-sub">Search across Indeed, LinkedIn, Google Jobs &amp; more</p>
+          </div>
         </div>
         <button
           type="button"
-          className="btn-secondary"
+          className="btn-ghost"
           onClick={() => setShowAdvanced(!showAdvanced)}
         >
           <Sliders size={14} />
-          {showAdvanced ? 'Simple View' : 'Advanced Options'}
+          {showAdvanced ? 'Simple' : 'Advanced'}
         </button>
       </div>
 
       <form onSubmit={handleSubmit}>
-        <div className="form-grid">
-          <div className="input-group">
-            <label className="input-label">
-              <Search size={14} /> Search Title / Role
-            </label>
-            <input
-              type="text"
-              className="custom-input"
-              value={formData.search_term}
-              onChange={(e) => setFormData({ ...formData, search_term: e.target.value })}
-              placeholder="e.g. Full Stack Developer, Data Analyst"
-              required
-            />
+        {/* Main search row */}
+        <div className="search-main-row">
+          <div className="search-field-primary">
+            <div className="search-input-wrapper">
+              <Search size={16} className="search-icon-left" />
+              <input
+                type="text"
+                className="search-big-input"
+                value={formData.search_term}
+                onChange={(e) => setFormData({ ...formData, search_term: e.target.value })}
+                placeholder="Job title, role, or keyword..."
+                required
+              />
+            </div>
           </div>
 
-          <div className="input-group">
-            <label className="input-label">
-              <MapPin size={14} /> Location
-            </label>
-            <input
-              type="text"
-              className="custom-input"
-              value={formData.location}
-              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-              placeholder="e.g. New York, London, Remote"
-            />
+          <div className="search-field-secondary">
+            <div className="search-input-wrapper">
+              <MapPin size={15} className="search-icon-left" />
+              <input
+                type="text"
+                className="search-big-input"
+                value={formData.location}
+                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                placeholder="Location (city, remote...)"
+              />
+            </div>
           </div>
 
-          <div className="input-group">
-            <label className="input-label">
-              <Globe size={14} /> Country
-            </label>
+          <div className="search-field-country">
             <select
-              className="custom-select"
+              className="search-select"
               value={formData.country}
               onChange={(e) => setFormData({ ...formData, country: e.target.value })}
             >
@@ -112,40 +121,48 @@ export default function SearchForm({ onScrape, isScraping, scrapeStatus }) {
               ))}
             </select>
           </div>
-
-          <div className="input-group">
-            <label className="input-label">Results Wanted ({formData.results_wanted})</label>
-            <input
-              type="range"
-              min="5"
-              max="100"
-              step="5"
-              value={formData.results_wanted}
-              onChange={(e) => setFormData({ ...formData, results_wanted: parseInt(e.target.value) })}
-              style={{ accentColor: 'var(--accent-primary)', marginTop: '8px' }}
-            />
-          </div>
         </div>
 
+        {/* Results slider */}
+        <div className="results-slider-row">
+          <span className="results-slider-label">
+            <Zap size={13} />
+            Fetch up to <strong>{formData.results_wanted}</strong> results
+          </span>
+          <input
+            type="range"
+            min="5"
+            max="100"
+            step="5"
+            value={formData.results_wanted}
+            onChange={(e) => setFormData({ ...formData, results_wanted: parseInt(e.target.value) })}
+            className="results-range"
+          />
+        </div>
+
+        {/* Advanced options */}
         {showAdvanced && (
-          <div style={{ marginTop: '16px', padding: '16px', background: 'rgba(15, 23, 42, 0.4)', borderRadius: 'var(--radius-md)' }}>
-            <div className="form-grid">
+          <div className="advanced-section">
+            <div className="advanced-grid">
               <div className="input-group">
-                <label className="input-label">Hours Old</label>
+                <label className="input-label">
+                  <Clock size={13} /> Time Window
+                </label>
                 <select
                   className="custom-select"
                   value={formData.hours_old}
                   onChange={(e) => setFormData({ ...formData, hours_old: parseInt(e.target.value) })}
                 >
-                  <option value={24}>Past 24 Hours</option>
-                  <option value={48}>Past 48 Hours</option>
-                  <option value={72}>Past 72 Hours (Default)</option>
-                  <option value={168}>Past 7 Days</option>
+                  {HOURS_OPTIONS.map((o) => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
                 </select>
               </div>
 
               <div className="input-group" style={{ gridColumn: 'span 2' }}>
-                <label className="input-label">Custom Google Query (Optional)</label>
+                <label className="input-label">
+                  <Search size={13} /> Custom Google Query (Optional)
+                </label>
                 <input
                   type="text"
                   className="custom-input"
@@ -159,57 +176,51 @@ export default function SearchForm({ onScrape, isScraping, scrapeStatus }) {
         )}
 
         {/* Site Selection */}
-        <div style={{ marginTop: '16px' }}>
-          <label className="input-label">Target Job Platforms</label>
-          <div className="sites-checkbox-grid">
+        <div className="sites-section">
+          <label className="input-label" style={{ marginBottom: '10px', display: 'flex' }}>
+            Target Platforms
+          </label>
+          <div className="sites-pills">
             {AVAILABLE_SITES.map((site) => {
               const active = formData.sites.includes(site.id);
               return (
-                <div
+                <button
                   key={site.id}
-                  className={`checkbox-pill ${active ? 'active' : ''}`}
+                  type="button"
+                  className={`site-pill ${active ? 'active' : ''}`}
+                  style={active ? { '--site-color': site.color } : {}}
                   onClick={() => toggleSite(site.id)}
                 >
-                  {active ? <CheckSquare size={16} color="#60a5fa" /> : <Square size={16} color="#6b7280" />}
+                  {active ? <CheckSquare size={13} /> : <Square size={13} />}
                   {site.label}
-                </div>
+                </button>
               );
             })}
           </div>
         </div>
 
-        {/* Experience Toggle & Submit */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', marginTop: '24px', gap: '16px' }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.88rem', color: 'var(--text-muted)' }}>
-            <input
-              type="checkbox"
-              checked={formData.only_no_experience}
-              onChange={(e) => setFormData({ ...formData, only_no_experience: e.target.checked })}
-              style={{ width: '16px', height: '16px', accentColor: 'var(--accent-primary)' }}
-            />
-            Only show entry-level / no prior experience required
-          </label>
-
-          <button type="submit" className="btn-primary" disabled={isScraping}>
+        {/* Submit row */}
+        <div className="submit-row">
+          {scrapeStatus && (
+            <div className={`scrape-status ${scrapeStatus.error ? 'error' : 'success'}`}>
+              <span className="scrape-status-dot" />
+              {scrapeStatus.message}
+            </div>
+          )}
+          <button type="submit" className="btn-primary search-submit" disabled={isScraping}>
             {isScraping ? (
               <>
-                <div className="spinner"></div>
-                Searching Job Boards...
+                <div className="spinner" />
+                Searching job boards...
               </>
             ) : (
               <>
-                <Search size={18} />
-                Find & Save Jobs
+                <Search size={16} />
+                Find &amp; Save Jobs
               </>
             )}
           </button>
         </div>
-
-        {scrapeStatus && (
-          <div style={{ marginTop: '16px', padding: '10px 14px', borderRadius: 'var(--radius-sm)', background: scrapeStatus.error ? 'rgba(244,63,94,0.1)' : 'rgba(16,185,129,0.1)', color: scrapeStatus.error ? '#fb7185' : '#34d399', fontSize: '0.88rem' }}>
-            {scrapeStatus.message}
-          </div>
-        )}
       </form>
     </div>
   );
