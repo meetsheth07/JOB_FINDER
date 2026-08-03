@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import {
-  ExternalLink, MapPin, Building2, Calendar, DollarSign,
+import API_BASE from '../config.js';
+import {  ExternalLink, MapPin, Building2, Calendar, DollarSign,
   Trash2, Bookmark, Wifi, Clock, ChevronDown, ChevronUp
 } from 'lucide-react';
-
-const API_BASE = 'http://localhost:5000/api';
 
 const SITE_COLORS = {
   linkedin:      { bg: 'rgba(10,102,194,0.15)',  border: 'rgba(10,102,194,0.4)',  bar: '#0a66c2' },

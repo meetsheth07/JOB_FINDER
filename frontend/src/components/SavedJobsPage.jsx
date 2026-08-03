@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import API_BASE from '../config.js';
 import {
   Bookmark, ExternalLink, MapPin, Building, Calendar, Clock,
   Trash2, AlertTriangle, Briefcase, ArrowLeft
 } from 'lucide-react';
-
-const API_BASE = 'http://localhost:5000/api';
 
 function getTimeRemaining(expiresAt) {
   const now = new Date().getTime();

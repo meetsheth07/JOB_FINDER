@@ -8,6 +8,7 @@ import FilterBar from './components/FilterBar';
 import JobList from './components/JobList';
 import AuthPage from './components/AuthPage';
 import SavedJobsPage from './components/SavedJobsPage';
+import API_BASE from './config.js';
 
 // Guard: only accessible when logged in
 function ProtectedRoute({ children }) {
@@ -22,8 +23,6 @@ function PublicOnlyRoute({ children }) {
   if (isLoading) return <div className="auth-loading"><div className="spinner" /></div>;
   return !isAuthenticated ? children : <Navigate to="/" replace />;
 }
-
-const API_BASE = 'http://localhost:5000/api';
 
 function HomePage() {
   const [jobs, setJobs] = useState([]);
