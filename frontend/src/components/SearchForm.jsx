@@ -56,7 +56,7 @@ export default function SearchForm({ onScrape, isScraping, scrapeStatus }) {
             Job Search & Scraper Control
           </h2>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-            Fetch live jobs from Indeed, LinkedIn, Google & store directly in MongoDB & jobs.csv
+            Fetch live jobs from Indeed, LinkedIn, Google & more
           </p>
         </div>
         <button
@@ -194,7 +194,7 @@ export default function SearchForm({ onScrape, isScraping, scrapeStatus }) {
             {isScraping ? (
               <>
                 <div className="spinner"></div>
-                Scraping Job Boards...
+                Searching Job Boards...
               </>
             ) : (
               <>

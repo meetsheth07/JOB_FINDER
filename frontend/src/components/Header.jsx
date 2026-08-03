@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Briefcase, Database, RefreshCw, User, LogOut, Bookmark, LogIn } from 'lucide-react';
+import { Briefcase, RefreshCw, LogOut, Bookmark, LogIn } from 'lucide-react';
 
-export default function Header({ isMongoConnected, onRefresh, totalCount }) {
+export default function Header({ onRefresh, totalCount }) {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -24,7 +24,7 @@ export default function Header({ isMongoConnected, onRefresh, totalCount }) {
   const handleLogout = () => {
     logout();
     setShowDropdown(false);
-    navigate('/');
+    navigate('/auth');
   };
 
   return (
@@ -36,18 +36,12 @@ export default function Header({ isMongoConnected, onRefresh, totalCount }) {
         <div>
           <h1 className="brand-title">JOB_SEARCH</h1>
           <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-            Full-Stack Scraper & Management Suite
+            Discover & Save Your Next Opportunity
           </span>
         </div>
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <div className="badge-status">
-          <span className="pulse-dot"></span>
-          <Database size={14} />
-          {isMongoConnected ? 'MongoDB Connected' : 'DB Offline'}
-        </div>
-
         {location.pathname === '/' && (
           <button className="btn-secondary" onClick={onRefresh} title="Refresh jobs">
             <RefreshCw size={14} />

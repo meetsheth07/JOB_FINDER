@@ -47,12 +47,12 @@ export function AuthProvider({ children }) {
     const res = await fetch(`${API_BASE}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email: email.trim().toLowerCase(), password })
     });
     const data = await res.json();
 
     if (!data.success) {
-      throw new Error(data.error || 'Login failed');
+      throw new Error(data.error || 'Login failed. Please check your credentials.');
     }
 
     localStorage.setItem('jf_token', data.token);
@@ -65,12 +65,12 @@ export function AuthProvider({ children }) {
     const res = await fetch(`${API_BASE}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password })
+      body: JSON.stringify({ name: name.trim(), email: email.trim().toLowerCase(), password })
     });
     const data = await res.json();
 
     if (!data.success) {
-      throw new Error(data.error || 'Registration failed');
+      throw new Error(data.error || 'Registration failed.');
     }
 
     localStorage.setItem('jf_token', data.token);

@@ -6,32 +6,40 @@ A powerful full-stack web application and job scraping suite built with **React*
 
 ## 📸 Overview & Architecture
 
-```
-                                  ┌────────────────────────────────┐
-                                  │      React + Vite Frontend     │
-                                  │    (Glassmorphic Dark UI)      │
-                                  │     http://localhost:5173      │
-                                  └───────────────┬────────────────┘
-                                                  │
-                                          HTTP REST API Call
-                                                  │
-                                  ┌───────────────▼────────────────┐
-                                  │     Node.js + Express API      │
-                                  │     http://localhost:5000      │
-                                  └───────┬────────────────┬───────┘
-                                          │                │
-                             Spawns Child Process     Mongoose ODM
-                                          │                │
-                   ┌──────────────────────▼──────┐   ┌─────▼───────────────────────────────┐
-                   │ Headless Python Scraper     │   │ MongoDB Database                    │
-                   │ (jobspy engine)             │   │ mongodb://localhost:27017/JOB_SCRAPPER│
-                   └──────────────┬──────────────┘   └─────────────────────────────────────┘
-                                  │
-                          Exports CSV File
-                                  │
-                   ┌──────────────▼──────────────┐
-                   │          jobs.csv           │
-                   └─────────────────────────────┘
+```mermaid
+graph TD
+    subgraph Frontend ["🖥️ Frontend (React + Vite)"]
+        UI["Glassmorphic Dark UI<br/>(Tailwind/CSS)"]
+        AuthUI["Auth & Saved Jobs"]
+    end
+    
+    subgraph Backend ["⚙️ Backend (Node.js + Express)"]
+        API["REST API<br/>(Port: 5000)"]
+        Auth["JWT Authentication"]
+    end
+    
+    subgraph Scraper ["🕷️ Python Scraper Engine"]
+        JobSpy["Headless JobSpy Bridge<br/>(Multiple Platforms)"]
+    end
+    
+    subgraph Storage ["💾 Data Storage"]
+        Mongo[(MongoDB<br/>JOB_SCRAPPER)]
+        CSV[\"jobs.csv"<br/>Local Export\]
+    end
+
+    UI -- "HTTP REST (Jobs)" --> API
+    AuthUI -- "HTTP REST (Auth/Save)" --> Auth
+    Auth -- "Validates" --> API
+    API -- "Spawns Child Process" --> JobSpy
+    API -- "Mongoose ODM" --> Mongo
+    Auth -- "Mongoose ODM" --> Mongo
+    JobSpy -- "Data Pipeline" --> API
+    JobSpy -- "Exports" --> CSV
+    
+    style Frontend fill:#1e293b,stroke:#3b82f6,stroke-width:2px,color:#fff
+    style Backend fill:#1e293b,stroke:#10b981,stroke-width:2px,color:#fff
+    style Scraper fill:#1e293b,stroke:#f59e0b,stroke-width:2px,color:#fff
+    style Storage fill:#1e293b,stroke:#8b5cf6,stroke-width:2px,color:#fff
 ```
 
 ---
@@ -40,11 +48,11 @@ A powerful full-stack web application and job scraping suite built with **React*
 
 ### 1. Legacy Architecture vs. Upgraded System
 - **Original (`main.py` & `app.py`)**: A local desktop GUI built with Python `tkinter` that scraped jobs into a plain `jobs.csv` file without persistence, search filtering, or web accessibility.
-- **Upgraded (`JOB_SEARCH/`)**: A modern full-stack web application featuring:
+- **Upgraded System**: A modern full-stack web application featuring:
   - **Decoupled Python Bridge (`scraper.py`)**: Headless scraper script accepting CLI arguments, filtering entry-level jobs, and returning structured JSON to Node.js.
-  - **Express REST API (`server.js` & `routes/jobs.js`)**: Serves endpoint APIs, manages asynchronous Python process spawning, upserts jobs to MongoDB, and synchronizes `jobs.csv`.
+  - **Express REST API (`server.js`)**: Serves endpoint APIs, manages asynchronous Python process spawning, upserts jobs to MongoDB, and synchronizes `jobs.csv`. Additionally, it handles JWT Authentication and Saved Jobs.
   - **MongoDB Database**: Persistent storage at `mongodb://localhost:27017/JOB_SCRAPPER` with unique indexing on `job_url` to prevent duplicate listings.
-  - **React Frontend**: Built with Vite and custom glassmorphic CSS tokens (`index.css`), live stat counters, job search & location parameters, platform checkboxes, salary details, and direct application links.
+  - **React Frontend**: Built with Vite and custom glassmorphic CSS tokens (`index.css`), live stat counters, job search & location parameters, platform checkboxes, salary details, user authentication, and saved job management.
 
 ---
 
@@ -56,32 +64,38 @@ JOB_FINDER/
 ├── main.py                        ← Original Tkinter desktop app (Legacy)
 ├── app.py                         ← Original app launcher (Legacy)
 ├── jobs.csv                       ← Auto-generated CSV containing scraped job links
-└── JOB_SEARCH/                    ← Modern Full-Stack Web Application
-    ├── README.md
-    ├── backend/
-    │   ├── package.json           ← Express, Mongoose, CORS, Dotenv dependencies
-    │   ├── server.js              ← Express server entry point (Port 5000)
-    │   ├── models/
-    │   │   └── Job.js             ← Mongoose schema for MongoDB
-    │   ├── routes/
-    │   │   └── jobs.js            ← REST API controller (/api/jobs, /api/scrape, /api/stats)
-    │   └── scraper/
-    │       └── scraper.py         ← Headless Python bridge script (JobSpy)
-    └── frontend/
-        ├── package.json           ← React, Vite, Lucide-react dependencies
-        ├── vite.config.js         ← Vite dev server & API proxy config
-        ├── index.html
-        └── src/
-            ├── App.jsx            ← Main application state & API integration
-            ├── main.jsx
-            ├── index.css          ← Dark glassmorphic design system
-            └── components/
-                ├── Header.jsx     ← Top bar with DB connection status & sync
-                ├── SearchForm.jsx ← Hero scraper control form
-                ├── StatsPanel.jsx ← Metric cards (Total jobs, 24h count, top hiring)
-                ├── FilterBar.jsx  ← Live search, platform filter & sorting
-                ├── JobCard.jsx    ← Glassmorphic job card with salary & apply button
-                └── JobList.jsx    ← Paginated job grid
+├── backend/                       ← Node.js + Express API
+│   ├── package.json               
+│   ├── server.js                  ← Express server entry point (Port 5000)
+│   ├── middleware/
+│   │   └── authMiddleware.js      ← JWT verification middleware
+│   ├── models/
+│   │   ├── Job.js                 ← Scraped Jobs Schema
+│   │   ├── SavedJob.js            ← User Saved Jobs Schema
+│   │   └── User.js                ← User Auth Schema
+│   ├── routes/
+│   │   ├── auth.js                ← Authentication routes (Login/Register)
+│   │   ├── jobs.js                ← Scraper & Jobs REST API 
+│   │   └── savedJobs.js           ← User saved jobs API
+│   └── scraper/
+│       └── scraper.py             ← Headless Python bridge script (JobSpy)
+└── frontend/                      ← React + Vite Web App
+    ├── package.json               
+    ├── vite.config.js             
+    ├── index.html
+    └── src/
+        ├── App.jsx                ← Main routing & API integration
+        ├── main.jsx
+        ├── index.css              ← Dark glassmorphic design system
+        └── components/
+            ├── AuthPage.jsx       ← Login & Registration forms
+            ├── Header.jsx         ← Navigation, Auth status & DB connection
+            ├── SearchForm.jsx     ← Scraper control form
+            ├── StatsPanel.jsx     ← Metric cards
+            ├── FilterBar.jsx      ← Live search, platform filter & sorting
+            ├── JobCard.jsx        ← Glassmorphic job card (Save/Apply)
+            ├── JobList.jsx        ← Paginated job grid
+            └── SavedJobsPage.jsx  ← User's saved jobs dashboard
 ```
 
 ---
@@ -102,7 +116,7 @@ mongodb://localhost:27017/JOB_SCRAPPER
 
 ### 2. Start Backend Server
 ```bash
-cd JOB_SEARCH/backend
+cd backend
 npm install
 npm start
 ```
@@ -111,7 +125,7 @@ npm start
 ### 3. Start Frontend App
 In a new terminal window:
 ```bash
-cd JOB_SEARCH/frontend
+cd frontend
 npm install
 npm run dev
 ```

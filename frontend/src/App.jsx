@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import Header from './components/Header';
 import SearchForm from './components/SearchForm';
 import StatsPanel from './components/StatsPanel';
@@ -9,12 +9,25 @@ import JobList from './components/JobList';
 import AuthPage from './components/AuthPage';
 import SavedJobsPage from './components/SavedJobsPage';
 
+// Guard: only accessible when logged in
+function ProtectedRoute({ children }) {
+  const { isAuthenticated, isLoading } = useAuth();
+  if (isLoading) return <div className="auth-loading"><div className="spinner" /></div>;
+  return isAuthenticated ? children : <Navigate to="/auth" replace />;
+}
+
+// Guard: redirect to home if already logged in
+function PublicOnlyRoute({ children }) {
+  const { isAuthenticated, isLoading } = useAuth();
+  if (isLoading) return <div className="auth-loading"><div className="spinner" /></div>;
+  return !isAuthenticated ? children : <Navigate to="/" replace />;
+}
+
 const API_BASE = 'http://localhost:5000/api';
 
 function HomePage() {
   const [jobs, setJobs] = useState([]);
   const [stats, setStats] = useState(null);
-  const [isMongoConnected, setIsMongoConnected] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
 
   // Search & Filter state
@@ -27,6 +40,7 @@ function HomePage() {
   // Scraper status
   const [isScraping, setIsScraping] = useState(false);
   const [scrapeStatus, setScrapeStatus] = useState(null);
+  const [resultsWanted, setResultsWanted] = useState(20);
 
   const fetchStats = useCallback(async () => {
     try {
@@ -45,8 +59,8 @@ function HomePage() {
     try {
       const params = new URLSearchParams({
         page: String(page),
-        limit: '12',
         sortBy,
+        resultsWanted: String(resultsWanted),
       });
 
       if (searchQuery) params.append('search', searchQuery);
@@ -58,17 +72,15 @@ function HomePage() {
       if (data.success) {
         setJobs(data.data);
         setPagination(data.pagination);
-        setIsMongoConnected(true);
       } else {
         setJobs([]);
       }
     } catch (err) {
       console.error('API Connection error:', err);
-      setIsMongoConnected(false);
     } finally {
       setIsLoading(false);
     }
-  }, [page, searchQuery, selectedSite, sortBy]);
+  }, [page, searchQuery, selectedSite, sortBy, resultsWanted]);
 
   useEffect(() => {
     fetchJobs();
@@ -77,7 +89,11 @@ function HomePage() {
 
   const handleScrape = async (formData) => {
     setIsScraping(true);
-    setScrapeStatus({ error: false, message: 'Launching Python scraper background process...' });
+    setScrapeStatus({ error: false, message: 'Searching for jobs, please wait...' });
+    // Update the display limit to match user's request
+    if (formData.results_wanted) {
+      setResultsWanted(formData.results_wanted);
+    }
 
     try {
       const res = await fetch(`${API_BASE}/jobs/scrape`, {
@@ -91,20 +107,20 @@ function HomePage() {
       if (data.success) {
         setScrapeStatus({
           error: false,
-          message: data.message || `Successfully scraped ${data.scrapedCount} jobs!`
+          message: `Found ${data.scrapedCount} jobs! ${data.savedCount} new results added.`
         });
         fetchJobs();
         fetchStats();
       } else {
         setScrapeStatus({
           error: true,
-          message: data.error || 'Scrape failed to complete.'
+          message: data.error || 'Search failed. Please try again.'
         });
       }
     } catch (err) {
       setScrapeStatus({
         error: true,
-        message: `Network/Server Error: ${err.message}`
+        message: `Connection Error: ${err.message}`
       });
     } finally {
       setIsScraping(false);
@@ -140,7 +156,6 @@ function HomePage() {
   return (
     <>
       <Header
-        isMongoConnected={isMongoConnected}
         onRefresh={() => { fetchJobs(); fetchStats(); }}
         totalCount={pagination ? pagination.total : jobs.length}
       />
@@ -180,9 +195,30 @@ export default function App() {
     <AuthProvider>
       <div className="app-container">
         <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/auth" element={<AuthPage />} />
-          <Route path="/saved" element={<SavedJobsPage />} />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <HomePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/auth"
+            element={
+              <PublicOnlyRoute>
+                <AuthPage />
+              </PublicOnlyRoute>
+            }
+          />
+          <Route
+            path="/saved"
+            element={
+              <ProtectedRoute>
+                <SavedJobsPage />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </div>
     </AuthProvider>

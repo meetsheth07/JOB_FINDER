@@ -450,6 +450,15 @@ body {
   to { transform: rotate(360deg); }
 }
 
+/* Full-screen loading overlay shown while auth state resolves */
+.auth-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: var(--bg-primary);
+}
+
 /* ═══════════════════════════════════════════════════════
    AUTH PAGE
    ═══════════════════════════════════════════════════════ */

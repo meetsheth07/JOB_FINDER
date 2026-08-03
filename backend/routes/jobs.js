@@ -8,10 +8,13 @@ const Job = require('../models/Job');
 // GET /api/jobs - List jobs with search, filtering, and pagination
 router.get('/', async (req, res) => {
   try {
-    const { search, site, location, limit = 50, page = 1, sortBy = 'scraped_at' } = req.query;
+    const { search, site, location, limit = 50, page = 1, sortBy = 'scraped_at', resultsWanted } = req.query;
 
     const query = {};
 
+    // Only show jobs scraped in the last 72 hours
+    const cutoff = new Date(Date.now() - 72 * 60 * 60 * 1000);
+    query.scraped_at = { $gte: cutoff };
     if (search) {
       query.$or = [
         { title: { $regex: search, $options: 'i' } },
@@ -29,7 +32,7 @@ router.get('/', async (req, res) => {
       query.location = { $regex: location, $options: 'i' };
     }
 
-    const parsedLimit = parseInt(limit);
+    const parsedLimit = resultsWanted ? parseInt(resultsWanted) : parseInt(limit);
     const parsedPage = parseInt(page);
     const skip = (parsedPage - 1) * parsedLimit;
 
