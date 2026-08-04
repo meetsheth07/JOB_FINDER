@@ -5,21 +5,6 @@ import {  ExternalLink, MapPin, Building2, Calendar, DollarSign,
   Trash2, Bookmark, Wifi, Clock, ChevronDown, ChevronUp
 } from 'lucide-react';
 
-const SITE_COLORS = {
-  linkedin:      { bg: 'rgba(10,102,194,0.15)',  border: 'rgba(10,102,194,0.4)',  bar: '#0a66c2' },
-  indeed:        { bg: 'rgba(37,87,167,0.15)',   border: 'rgba(37,87,167,0.4)',   bar: '#2557a7' },
-  google:        { bg: 'rgba(234,67,53,0.12)',   border: 'rgba(234,67,53,0.3)',   bar: '#ea4335' },
-  glassdoor:     { bg: 'rgba(0,162,100,0.12)',   border: 'rgba(0,162,100,0.3)',   bar: '#00a264' },
-  zip_recruiter: { bg: 'rgba(232,67,10,0.12)',   border: 'rgba(232,67,10,0.3)',   bar: '#e8430a' },
-  naukri:        { bg: 'rgba(243,145,30,0.12)',  border: 'rgba(243,145,30,0.3)',  bar: '#f3911e' },
-  bayt:          { bg: 'rgba(192,57,43,0.12)',   border: 'rgba(192,57,43,0.3)',   bar: '#c0392b' },
-  bdjobs:        { bg: 'rgba(22,160,133,0.12)',  border: 'rgba(22,160,133,0.3)',  bar: '#16a085' },
-};
-
-function getSiteStyle(site) {
-  return SITE_COLORS[(site || '').toLowerCase()] || SITE_COLORS['indeed'];
-}
-
 export default function JobCard({ job, onDelete }) {
   const { isAuthenticated, token } = useAuth();
   const [isSaved, setIsSaved]       = useState(false);
@@ -27,7 +12,6 @@ export default function JobCard({ job, onDelete }) {
   const [isSaving, setIsSaving]     = useState(false);
   const [expanded, setExpanded]     = useState(false);
 
-  const siteStyle = getSiteStyle(job.site);
   const siteName  = (job.site || 'web').toLowerCase();
 
   useEffect(() => {
@@ -100,17 +84,14 @@ export default function JobCard({ job, onDelete }) {
     : null;
 
   return (
-    <div
-      className="job-card glass-panel"
-      style={{ '--site-bar': siteStyle.bar }}
-    >
-      {/* Brand colour top bar */}
+    <div className="job-card">
+      {/* Accent top bar */}
       <div className="job-card-bar" />
 
       {/* Site badge top-right */}
       <div
         className="job-site-badge"
-        style={{ background: siteStyle.bg, border: `1px solid ${siteStyle.border}`, color: siteStyle.bar }}
+        style={{ background: 'var(--accent-dim)', border: '1px solid var(--accent-border)', color: 'var(--accent)' }}
       >
         {siteName}
       </div>
@@ -122,7 +103,7 @@ export default function JobCard({ job, onDelete }) {
           <div className="job-card-text">
             <h3 className="job-title">{job.title}</h3>
             <div className="company-name">
-              <Building2 size={12} />
+              <Building2 size={11} />
               {job.company}
             </div>
           </div>
@@ -134,7 +115,7 @@ export default function JobCard({ job, onDelete }) {
               disabled={isSaving}
               title={isSaved ? 'Remove from saved' : 'Save this job'}
             >
-              <Bookmark size={15} fill={isSaved ? 'currentColor' : 'none'} />
+              <Bookmark size={13} fill={isSaved ? 'currentColor' : 'none'} />
             </button>
           )}
         </div>
@@ -143,12 +124,12 @@ export default function JobCard({ job, onDelete }) {
         <div className="job-meta-row">
           {job.location && (
             <span className="job-meta-pill">
-              <MapPin size={11} /> {job.location}
+              <MapPin size={10} /> {job.location}
             </span>
           )}
           {job.is_remote && (
             <span className="job-meta-pill remote-pill">
-              <Wifi size={11} /> Remote
+              <Wifi size={10} /> REMOTE
             </span>
           )}
           {job.job_type && (
@@ -161,7 +142,7 @@ export default function JobCard({ job, onDelete }) {
         {/* Salary */}
         {salary && (
           <div className="job-salary">
-            <DollarSign size={13} />
+            <DollarSign size={12} />
             {salary}
           </div>
         )}
@@ -177,7 +158,7 @@ export default function JobCard({ job, onDelete }) {
                 className="expand-btn"
                 onClick={() => setExpanded(!expanded)}
               >
-                {expanded ? <><ChevronUp size={12} /> Less</> : <><ChevronDown size={12} /> More</>}
+                {expanded ? <><ChevronUp size={11} /> LESS</> : <><ChevronDown size={11} /> MORE</>}
               </button>
             )}
           </div>
@@ -189,12 +170,12 @@ export default function JobCard({ job, onDelete }) {
         <div className="job-card-dates">
           {postedDate && (
             <span className="job-date-tag">
-              <Calendar size={11} /> Posted {postedDate}
+              <Calendar size={10} /> POSTED {postedDate}
             </span>
           )}
           {scrapedDate && (
             <span className="job-date-tag muted">
-              <Clock size={11} /> Scraped {scrapedDate}
+              <Clock size={10} /> SCRAPED {scrapedDate}
             </span>
           )}
         </div>
@@ -205,7 +186,7 @@ export default function JobCard({ job, onDelete }) {
             onClick={() => onDelete(job._id)}
             title="Remove job"
           >
-            <Trash2 size={13} />
+            <Trash2 size={12} />
           </button>
 
           <a
@@ -214,7 +195,7 @@ export default function JobCard({ job, onDelete }) {
             rel="noopener noreferrer"
             className="btn-primary apply-btn"
           >
-            Apply <ExternalLink size={12} />
+            APPLY <ExternalLink size={11} />
           </a>
         </div>
       </div>

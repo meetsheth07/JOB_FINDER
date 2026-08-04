@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Briefcase, RefreshCw, LogOut, Bookmark, LogIn } from 'lucide-react';
+import { RefreshCw, LogOut, Bookmark, LogIn } from 'lucide-react';
 
 export default function Header({ onRefresh, totalCount }) {
   const { user, isAuthenticated, logout } = useAuth();
@@ -30,22 +30,15 @@ export default function Header({ onRefresh, totalCount }) {
   return (
     <header className="app-header">
       <div className="brand-logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-        <div className="logo-icon">
-          <Briefcase size={24} />
-        </div>
-        <div>
-          <h1 className="brand-title">JOB_SEARCH</h1>
-          <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-            Discover & Save Your Next Opportunity
-          </span>
-        </div>
+        <div className="logo-icon" />
+        <span className="brand-title">JOB_FINDER</span>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
         {location.pathname === '/' && (
           <button className="btn-secondary" onClick={onRefresh} title="Refresh jobs">
-            <RefreshCw size={14} />
-            Sync ({totalCount})
+            <RefreshCw size={13} />
+            SYNC ({totalCount})
           </button>
         )}
 
@@ -63,9 +56,9 @@ export default function Header({ onRefresh, totalCount }) {
             </button>
 
             {showDropdown && (
-              <div className="user-dropdown glass-panel">
+              <div className="user-dropdown">
                 <div className="user-dropdown-header">
-                  <div className="user-avatar" style={{ width: 36, height: 36, fontSize: '0.9rem' }}>
+                  <div className="user-avatar" style={{ width: 32, height: 32, fontSize: '.82rem' }}>
                     {(user?.name || 'U').charAt(0).toUpperCase()}
                   </div>
                   <div>
@@ -78,14 +71,14 @@ export default function Header({ onRefresh, totalCount }) {
                   className="user-dropdown-item"
                   onClick={() => { navigate('/saved'); setShowDropdown(false); }}
                 >
-                  <Bookmark size={15} />
+                  <Bookmark size={14} />
                   My Saved Jobs
                 </button>
                 <button
                   className="user-dropdown-item user-dropdown-item-danger"
                   onClick={handleLogout}
                 >
-                  <LogOut size={15} />
+                  <LogOut size={14} />
                   Sign Out
                 </button>
               </div>
@@ -93,12 +86,11 @@ export default function Header({ onRefresh, totalCount }) {
           </div>
         ) : (
           <button
-            className="btn-primary"
+            className="btn-accent"
             onClick={() => navigate('/auth')}
-            style={{ padding: '8px 18px', fontSize: '0.85rem' }}
           >
-            <LogIn size={15} />
-            Sign In
+            <LogIn size={13} />
+            SIGN IN
           </button>
         )}
       </div>

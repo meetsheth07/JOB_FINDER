@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, ArrowRight, Briefcase, Sparkles } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, Sparkles } from 'lucide-react';
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -55,20 +55,18 @@ export default function AuthPage() {
       <div className="auth-ambient auth-ambient-1" />
       <div className="auth-ambient auth-ambient-2" />
 
-      <div className="auth-card glass-panel">
+      <div className="auth-card">
         <div className="auth-header">
           <div className="auth-logo">
-            <div className="logo-icon" style={{ width: 48, height: 48 }}>
-              <Briefcase size={26} />
-            </div>
+            <div className="console-nav-mark" style={{ width: 32, height: 32, borderRadius: 8 }} />
           </div>
           <h1 className="auth-title">
-            {isLogin ? 'Welcome Back' : 'Join JOB_SEARCH'}
+            {isLogin ? 'Welcome Back' : 'Join JOB_FINDER'}
           </h1>
           <p className="auth-subtitle">
             {isLogin
-              ? 'Sign in to access your saved jobs and personalized features'
-              : 'Create an account to save jobs and track your applications'}
+              ? 'SIGN IN TO ACCESS YOUR SAVED JOBS AND SEARCH CONSOLE'
+              : 'CREATE AN ACCOUNT TO SAVE JOBS AND TRACK APPLICATIONS'}
           </p>
         </div>
 
@@ -77,13 +75,13 @@ export default function AuthPage() {
             className={`auth-tab ${isLogin ? 'active' : ''}`}
             onClick={() => { setIsLogin(true); setError(''); }}
           >
-            Sign In
+            SIGN IN
           </button>
           <button
             className={`auth-tab ${!isLogin ? 'active' : ''}`}
             onClick={() => { setIsLogin(false); setError(''); }}
           >
-            Register
+            REGISTER
           </button>
         </div>
 
@@ -94,7 +92,7 @@ export default function AuthPage() {
         )}
 
         {successMsg && (
-          <div className="auth-error" style={{ background: 'rgba(16,185,129,0.12)', color: '#34d399', borderColor: 'rgba(52,211,153,0.3)' }}>
+          <div className="auth-error" style={{ background: 'var(--status-green-dim)', color: 'var(--status-green)', borderColor: 'var(--status-green-border)' }}>
             <span>✓</span> {successMsg}
           </div>
         )}
@@ -103,8 +101,8 @@ export default function AuthPage() {
           {!isLogin && (
             <div className="auth-input-group">
               <label className="auth-input-label">
-                <User size={15} />
-                Full Name
+                <User size={13} />
+                FULL NAME
               </label>
               <input
                 type="text"
@@ -120,8 +118,8 @@ export default function AuthPage() {
 
           <div className="auth-input-group">
             <label className="auth-input-label">
-              <Mail size={15} />
-              Email Address
+              <Mail size={13} />
+              EMAIL ADDRESS
             </label>
             <input
               type="email"
@@ -136,8 +134,8 @@ export default function AuthPage() {
 
           <div className="auth-input-group">
             <label className="auth-input-label">
-              <Lock size={15} />
-              Password
+              <Lock size={13} />
+              PASSWORD
             </label>
             <input
               type="password"
@@ -159,12 +157,12 @@ export default function AuthPage() {
             {isSubmitting ? (
               <>
                 <div className="spinner" />
-                {isLogin ? 'Signing in...' : 'Creating account...'}
+                {isLogin ? 'SIGNING IN...' : 'CREATING ACCOUNT...'}
               </>
             ) : (
               <>
-                {isLogin ? 'Sign In' : 'Create Account'}
-                <ArrowRight size={18} />
+                {isLogin ? 'SIGN IN' : 'CREATE ACCOUNT'}
+                <ArrowRight size={16} />
               </>
             )}
           </button>
@@ -172,16 +170,16 @@ export default function AuthPage() {
 
         <div className="auth-footer">
           <p>
-            {isLogin ? "Don't have an account?" : 'Already have an account?'}
+            {isLogin ? "DON'T HAVE AN ACCOUNT?" : 'ALREADY HAVE AN ACCOUNT?'}
             <button className="auth-link" onClick={toggleMode}>
-              {isLogin ? 'Create one' : 'Sign in'}
+              {isLogin ? 'CREATE ONE' : 'SIGN IN'}
             </button>
           </p>
         </div>
 
         <div className="auth-feature-hint">
-          <Sparkles size={14} />
-          <span>Save jobs and they'll be available for 3 days</span>
+          <Sparkles size={12} />
+          <span>SAVED JOBS AVAILABLE FOR 3 DAYS</span>
         </div>
       </div>
     </div>

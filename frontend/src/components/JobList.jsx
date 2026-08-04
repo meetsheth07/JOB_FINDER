@@ -5,19 +5,34 @@ import { Inbox, ChevronLeft, ChevronRight } from 'lucide-react';
 export default function JobList({ jobs, onDeleteJob, pagination, onPageChange, isLoading }) {
   if (isLoading) {
     return (
-      <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)' }}>
-        <div className="spinner" style={{ margin: '0 auto 16px', width: '32px', height: '32px' }}></div>
-        <p>Loading jobs from MongoDB...</p>
+      <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+        <div className="spinner" style={{ margin: '0 auto 14px', width: '28px', height: '28px' }} />
+        <p className="mono-sm" style={{ color: 'var(--ink-muted)' }}>LOADING JOBS FROM DATABASE...</p>
       </div>
     );
   }
 
   if (!jobs || jobs.length === 0) {
     return (
-      <div className="glass-panel" style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)' }}>
-        <Inbox size={48} color="var(--text-dim)" style={{ marginBottom: '12px' }} />
-        <h3 style={{ fontSize: '1.1rem', color: 'var(--text-main)', marginBottom: '4px' }}>No Jobs Found</h3>
-        <p style={{ fontSize: '0.88rem' }}>Use the search control panel above to scrape live jobs from Indeed, LinkedIn, or Google.</p>
+      <div style={{
+        textAlign: 'center',
+        padding: '60px 20px',
+        background: 'var(--panel)',
+        border: '1px solid var(--hairline)',
+        borderRadius: '12px'
+      }}>
+        <Inbox size={44} color="var(--ink-muted)" style={{ marginBottom: '12px' }} />
+        <h3 style={{
+          fontFamily: 'var(--font-display)',
+          fontSize: '1.05rem',
+          fontWeight: 700,
+          letterSpacing: '-.02em',
+          color: 'var(--ink)',
+          marginBottom: '6px'
+        }}>No Jobs Found</h3>
+        <p className="mono-sm" style={{ color: 'var(--ink-muted)' }}>
+          USE THE SEARCH PANEL ABOVE TO SCRAPE LIVE JOBS FROM INDEED, LINKEDIN, OR GOOGLE.
+        </p>
       </div>
     );
   }
@@ -32,17 +47,17 @@ export default function JobList({ jobs, onDeleteJob, pagination, onPageChange, i
 
       {/* Pagination Controls */}
       {pagination && pagination.pages > 1 && (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', marginTop: '32px' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '14px', marginTop: '28px' }}>
           <button
             className="btn-secondary"
             disabled={pagination.page <= 1}
             onClick={() => onPageChange(pagination.page - 1)}
           >
-            <ChevronLeft size={16} /> Previous
+            <ChevronLeft size={14} /> PREV
           </button>
 
-          <span style={{ fontSize: '0.88rem', color: 'var(--text-muted)' }}>
-            Page <strong style={{ color: 'var(--text-main)' }}>{pagination.page}</strong> of {pagination.pages} ({pagination.total} total)
+          <span className="mono-sm" style={{ color: 'var(--ink-muted)', fontSize: '10px' }}>
+            PAGE <strong style={{ color: 'var(--ink)' }}>{pagination.page}</strong> OF {pagination.pages} ({pagination.total} TOTAL)
           </span>
 
           <button
@@ -50,7 +65,7 @@ export default function JobList({ jobs, onDeleteJob, pagination, onPageChange, i
             disabled={pagination.page >= pagination.pages}
             onClick={() => onPageChange(pagination.page + 1)}
           >
-            Next <ChevronRight size={16} />
+            NEXT <ChevronRight size={14} />
           </button>
         </div>
       )}

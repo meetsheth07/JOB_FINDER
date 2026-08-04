@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import { Search, MapPin, Globe, Sparkles, Sliders, CheckSquare, Square, Clock, Zap } from 'lucide-react';
+import { Search, MapPin, Sparkles, Sliders, CheckSquare, Square, Clock, Zap } from 'lucide-react';
 
 const AVAILABLE_SITES = [
-  { id: 'indeed',        label: 'Indeed',       color: '#2557a7' },
-  { id: 'linkedin',      label: 'LinkedIn',     color: '#0a66c2' },
-  { id: 'google',        label: 'Google Jobs',  color: '#ea4335' },
-  { id: 'zip_recruiter', label: 'ZipRecruiter', color: '#e8430a' },
-  { id: 'glassdoor',     label: 'Glassdoor',    color: '#00a264' },
-  { id: 'naukri',        label: 'Naukri',       color: '#f3911e' },
-  { id: 'bayt',          label: 'Bayt',         color: '#c0392b' },
-  { id: 'bdjobs',        label: 'BDJobs',       color: '#16a085' },
+  { id: 'indeed',        label: 'Indeed',       color: '#F0A422' },
+  { id: 'linkedin',      label: 'LinkedIn',     color: '#F0A422' },
+  { id: 'google',        label: 'Google Jobs',  color: '#F0A422' },
+  { id: 'zip_recruiter', label: 'ZipRecruiter', color: '#F0A422' },
+  { id: 'glassdoor',     label: 'Glassdoor',    color: '#F0A422' },
+  { id: 'naukri',        label: 'Naukri',       color: '#F0A422' },
+  { id: 'bayt',          label: 'Bayt',         color: '#F0A422' },
+  { id: 'bdjobs',        label: 'BDJobs',       color: '#F0A422' },
 ];
 
 const COUNTRIES = ['USA', 'India', 'UK', 'Canada', 'Australia', 'Germany', 'Singapore', 'UAE', 'Saudi Arabia'];
@@ -58,16 +58,16 @@ export default function SearchForm({ onScrape, isScraping, scrapeStatus }) {
   };
 
   return (
-    <div className="search-panel glass-panel">
+    <div className="search-panel">
       {/* Header */}
       <div className="search-panel-header">
         <div className="search-panel-title-group">
           <div className="search-panel-icon">
-            <Sparkles size={18} />
+            <Sparkles size={16} />
           </div>
           <div>
             <h2 className="search-panel-title">Find Your Next Role</h2>
-            <p className="search-panel-sub">Search across Indeed, LinkedIn, Google Jobs &amp; more</p>
+            <p className="search-panel-sub">SEARCH ACROSS INDEED, LINKEDIN, GOOGLE JOBS &amp; MORE</p>
           </div>
         </div>
         <button
@@ -75,8 +75,8 @@ export default function SearchForm({ onScrape, isScraping, scrapeStatus }) {
           className="btn-ghost"
           onClick={() => setShowAdvanced(!showAdvanced)}
         >
-          <Sliders size={14} />
-          {showAdvanced ? 'Simple' : 'Advanced'}
+          <Sliders size={13} />
+          {showAdvanced ? 'SIMPLE' : 'ADVANCED'}
         </button>
       </div>
 
@@ -85,7 +85,7 @@ export default function SearchForm({ onScrape, isScraping, scrapeStatus }) {
         <div className="search-main-row">
           <div className="search-field-primary">
             <div className="search-input-wrapper">
-              <Search size={16} className="search-icon-left" />
+              <Search size={14} className="search-icon-left" />
               <input
                 type="text"
                 className="search-big-input"
@@ -99,7 +99,7 @@ export default function SearchForm({ onScrape, isScraping, scrapeStatus }) {
 
           <div className="search-field-secondary">
             <div className="search-input-wrapper">
-              <MapPin size={15} className="search-icon-left" />
+              <MapPin size={13} className="search-icon-left" />
               <input
                 type="text"
                 className="search-big-input"
@@ -126,8 +126,8 @@ export default function SearchForm({ onScrape, isScraping, scrapeStatus }) {
         {/* Results slider */}
         <div className="results-slider-row">
           <span className="results-slider-label">
-            <Zap size={13} />
-            Fetch up to <strong>{formData.results_wanted}</strong> results
+            <Zap size={12} />
+            FETCH UP TO <strong>{formData.results_wanted}</strong> RESULTS
           </span>
           <input
             type="range"
@@ -146,7 +146,7 @@ export default function SearchForm({ onScrape, isScraping, scrapeStatus }) {
             <div className="advanced-grid">
               <div className="input-group">
                 <label className="input-label">
-                  <Clock size={13} /> Time Window
+                  <Clock size={12} /> TIME WINDOW
                 </label>
                 <select
                   className="custom-select"
@@ -161,7 +161,7 @@ export default function SearchForm({ onScrape, isScraping, scrapeStatus }) {
 
               <div className="input-group" style={{ gridColumn: 'span 2' }}>
                 <label className="input-label">
-                  <Search size={13} /> Custom Google Query (Optional)
+                  <Search size={12} /> CUSTOM GOOGLE QUERY
                 </label>
                 <input
                   type="text"
@@ -178,7 +178,7 @@ export default function SearchForm({ onScrape, isScraping, scrapeStatus }) {
         {/* Site Selection */}
         <div className="sites-section">
           <label className="input-label" style={{ marginBottom: '10px', display: 'flex' }}>
-            Target Platforms
+            TARGET PLATFORMS
           </label>
           <div className="sites-pills">
             {AVAILABLE_SITES.map((site) => {
@@ -188,10 +188,9 @@ export default function SearchForm({ onScrape, isScraping, scrapeStatus }) {
                   key={site.id}
                   type="button"
                   className={`site-pill ${active ? 'active' : ''}`}
-                  style={active ? { '--site-color': site.color } : {}}
                   onClick={() => toggleSite(site.id)}
                 >
-                  {active ? <CheckSquare size={13} /> : <Square size={13} />}
+                  {active ? <CheckSquare size={12} /> : <Square size={12} />}
                   {site.label}
                 </button>
               );
@@ -211,12 +210,12 @@ export default function SearchForm({ onScrape, isScraping, scrapeStatus }) {
             {isScraping ? (
               <>
                 <div className="spinner" />
-                Searching job boards...
+                SEARCHING...
               </>
             ) : (
               <>
-                <Search size={16} />
-                Find &amp; Save Jobs
+                <Search size={14} />
+                FIND &amp; SAVE JOBS
               </>
             )}
           </button>

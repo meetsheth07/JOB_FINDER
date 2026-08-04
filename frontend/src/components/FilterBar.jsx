@@ -12,25 +12,25 @@ export default function FilterBar({
   totalJobs
 }) {
   return (
-    <div className="glass-panel filter-bar">
-      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '12px', flex: 1 }}>
-        <div style={{ position: 'relative', minWidth: '240px', flex: 1 }}>
-          <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+    <div className="filter-bar">
+      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '10px', flex: 1 }}>
+        <div style={{ position: 'relative', minWidth: '220px', flex: 1 }}>
+          <Search size={14} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-muted)' }} />
           <input
             type="text"
             className="custom-input"
-            style={{ paddingLeft: '36px' }}
+            style={{ paddingLeft: '34px' }}
             placeholder="Filter saved jobs..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
           />
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Filter size={14} color="var(--text-muted)" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <Filter size={13} color="var(--ink-muted)" />
           <select
             className="custom-select"
-            style={{ width: '140px' }}
+            style={{ width: '130px' }}
             value={selectedSite}
             onChange={(e) => onSiteChange(e.target.value)}
           >
@@ -44,11 +44,11 @@ export default function FilterBar({
           </select>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <ArrowUpDown size={14} color="var(--text-muted)" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <ArrowUpDown size={13} color="var(--ink-muted)" />
           <select
             className="custom-select"
-            style={{ width: '140px' }}
+            style={{ width: '130px' }}
             value={sortBy}
             onChange={(e) => onSortChange(e.target.value)}
           >
@@ -68,7 +68,7 @@ export default function FilterBar({
             }
           }}
         >
-          <Trash2 size={14} /> Clear Database
+          <Trash2 size={13} /> CLEAR DB
         </button>
       )}
     </div>

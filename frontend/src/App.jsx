@@ -8,6 +8,7 @@ import FilterBar from './components/FilterBar';
 import JobList from './components/JobList';
 import AuthPage from './components/AuthPage';
 import SavedJobsPage from './components/SavedJobsPage';
+import LandingPage from './components/LandingPage';
 import API_BASE from './config.js';
 
 // Guard: only accessible when logged in
@@ -22,6 +23,13 @@ function PublicOnlyRoute({ children }) {
   const { isAuthenticated, isLoading } = useAuth();
   if (isLoading) return <div className="auth-loading"><div className="spinner" /></div>;
   return !isAuthenticated ? children : <Navigate to="/" replace />;
+}
+
+// Landing or App based on auth state
+function LandingOrApp() {
+  const { isAuthenticated, isLoading } = useAuth();
+  if (isLoading) return <div className="auth-loading"><div className="spinner" /></div>;
+  return isAuthenticated ? <HomePage /> : <LandingPage />;
 }
 
 function HomePage() {
@@ -159,32 +167,34 @@ function HomePage() {
         totalCount={pagination ? pagination.total : jobs.length}
       />
 
-      <StatsPanel stats={stats} />
+      <div className="app-container">
+        <StatsPanel stats={stats} />
 
-      <SearchForm
-        onScrape={handleScrape}
-        isScraping={isScraping}
-        scrapeStatus={scrapeStatus}
-      />
+        <SearchForm
+          onScrape={handleScrape}
+          isScraping={isScraping}
+          scrapeStatus={scrapeStatus}
+        />
 
-      <FilterBar
-        searchQuery={searchQuery}
-        onSearchChange={(val) => { setSearchQuery(val); setPage(1); }}
-        selectedSite={selectedSite}
-        onSiteChange={(val) => { setSelectedSite(val); setPage(1); }}
-        sortBy={sortBy}
-        onSortChange={(val) => setSortBy(val)}
-        onClearAll={handleClearAll}
-        totalJobs={pagination ? pagination.total : jobs.length}
-      />
+        <FilterBar
+          searchQuery={searchQuery}
+          onSearchChange={(val) => { setSearchQuery(val); setPage(1); }}
+          selectedSite={selectedSite}
+          onSiteChange={(val) => { setSelectedSite(val); setPage(1); }}
+          sortBy={sortBy}
+          onSortChange={(val) => setSortBy(val)}
+          onClearAll={handleClearAll}
+          totalJobs={pagination ? pagination.total : jobs.length}
+        />
 
-      <JobList
-        jobs={jobs}
-        onDeleteJob={handleDeleteJob}
-        pagination={pagination}
-        onPageChange={(newPage) => setPage(newPage)}
-        isLoading={isLoading}
-      />
+        <JobList
+          jobs={jobs}
+          onDeleteJob={handleDeleteJob}
+          pagination={pagination}
+          onPageChange={(newPage) => setPage(newPage)}
+          isLoading={isLoading}
+        />
+      </div>
     </>
   );
 }
@@ -192,34 +202,25 @@ function HomePage() {
 export default function App() {
   return (
     <AuthProvider>
-      <div className="app-container">
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <HomePage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/auth"
-            element={
-              <PublicOnlyRoute>
-                <AuthPage />
-              </PublicOnlyRoute>
-            }
-          />
-          <Route
-            path="/saved"
-            element={
-              <ProtectedRoute>
-                <SavedJobsPage />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </div>
+      <Routes>
+        <Route path="/" element={<LandingOrApp />} />
+        <Route
+          path="/auth"
+          element={
+            <PublicOnlyRoute>
+              <AuthPage />
+            </PublicOnlyRoute>
+          }
+        />
+        <Route
+          path="/saved"
+          element={
+            <ProtectedRoute>
+              <SavedJobsPage />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
     </AuthProvider>
   );
 }

@@ -6,45 +6,45 @@ export default function StatsPanel({ stats }) {
 
   return (
     <div className="stats-grid">
-      <div className="glass-panel stat-card">
-        <div className="stat-icon" style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa' }}>
-          <Briefcase size={22} />
+      <div className="stat-card">
+        <div className="stat-icon">
+          <Briefcase size={20} />
         </div>
         <div>
           <div className="stat-value">{stats.totalJobs || 0}</div>
-          <div className="stat-label">Total Jobs in DB</div>
+          <div className="stat-label">TOTAL JOBS IN DB</div>
         </div>
       </div>
 
-      <div className="glass-panel stat-card">
-        <div className="stat-icon" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#34d399' }}>
-          <Clock size={22} />
+      <div className="stat-card">
+        <div className="stat-icon" style={{ background: 'var(--status-green-dim)', color: 'var(--status-green)' }}>
+          <Clock size={20} />
         </div>
         <div>
           <div className="stat-value">{stats.recent24h || 0}</div>
-          <div className="stat-label">Scraped in 24h</div>
+          <div className="stat-label">SCRAPED IN 24H</div>
         </div>
       </div>
 
-      <div className="glass-panel stat-card">
-        <div className="stat-icon" style={{ background: 'rgba(139, 92, 246, 0.15)', color: '#a78bfa' }}>
-          <Layers size={22} />
+      <div className="stat-card">
+        <div className="stat-icon">
+          <Layers size={20} />
         </div>
         <div>
           <div className="stat-value">{stats.siteStats ? stats.siteStats.length : 0}</div>
-          <div className="stat-label">Active Sources</div>
+          <div className="stat-label">ACTIVE SOURCES</div>
         </div>
       </div>
 
-      <div className="glass-panel stat-card">
-        <div className="stat-icon" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24' }}>
-          <Building2 size={22} />
+      <div className="stat-card">
+        <div className="stat-icon">
+          <Building2 size={20} />
         </div>
         <div>
-          <div className="stat-value">
+          <div className="stat-value" style={{ fontSize: '1rem' }}>
             {stats.topCompanies && stats.topCompanies[0] ? stats.topCompanies[0]._id : 'N/A'}
           </div>
-          <div className="stat-label">Top Hiring Company</div>
+          <div className="stat-label">TOP HIRING COMPANY</div>
         </div>
       </div>
     </div>
